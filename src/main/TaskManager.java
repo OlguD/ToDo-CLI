@@ -1,48 +1,76 @@
 package ToDo.src.main;
 
+import java.util.ArrayList;
+import java.io.IOException;
+import java.io.FileWriter;
+import java.io.FileReader;
 
-public abstract class TaskManager {
-    private int taskID = 0;
-    private String taskName;
-    private String taskDescription;
-    private boolean taskStatus;
+import ToDo.src.main.Task;
 
-    public TaskManager(String taskName, String taskDescription, boolean taskStatus) {
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.taskStatus = taskStatus;
+public class TaskManager {
+    private int nextTaskID = 1;
+    private ArrayList<Task> taskList = new ArrayList<>();
+
+    public void saveTasksToFile() {
+        try (FileWriter file = new FileWriter("tasks.txt")) { // Dosya yolunu düzeltin
+            for (Task task : taskList) {
+                file.write(task.getTaskID() + ", " + task.getTaskName() + ", " + task.getTaskDescription() + ", " + task.getTaskStatus() + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addTask(String taskName, String taskDescription) {
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.taskStatus = false;
-        this.taskID++;
+        Task newTask = new Task(nextTaskID++, taskName, taskDescription, false);
+        taskList.add(newTask);
     }
 
-    public void removeTask(String taskName) {
-
+    public void removeTask(int taskID) {
+        for (Task task : taskList) {
+            if (task.getTaskID() == taskID) {
+                taskList.remove(task);
+                break;
+            }
+        }
     }
 
-    public void updateTask(String taskName, String taskDescription) {
-       
+    public void updateTask(int taskID, String taskName, String taskDescription) {
+        for (Task task : taskList) {
+            if (task.getTaskID() == taskID) {
+                task.setTaskName(taskName);
+                task.setTaskDescription(taskDescription);
+                break;
+            }
+        }
     }
 
-    public void displayTask(String taskName) {
-        
+    public void displayTask() {
+        System.out.format("+------------+------------+-------------------+----------------+%n");
+        System.out.format("| Task ID    | Task Name  | Task Description  | Task Status    |%n");
+        System.out.format("+------------+------------+-------------------+----------------+%n");
+        String leftAlignment = "| %-10d | %-10s | %-17s | %-13s |%n"; // Formatlama hatasını düzeltin
+        for (Task task : taskList) {
+            System.out.format(leftAlignment, task.getTaskID(), task.getTaskName(), task.getTaskDescription(), task.getMark());
+        }
+        System.out.format("+------------+------------+-------------------+----------------+%n");
     }
 
-    public void displayAllTasks() {
-        
-    }
-
-    public void markTaskAsComplete(String taskName) {
-        
+    public void markTaskAsComplete(int taskID) {
+        for (Task task : taskList) {
+            if (task.getTaskID() == taskID) {
+                task.markAsComplete();
+                break;
+            }
+        }
     }
 
     public void markTaskAsIncomplete(String taskName) {
-        
+        for (Task task : taskList) {
+            if (task.getTaskName().equals(taskName)) {
+                task.markAsIncomplete();
+                break;
+            }
+        }
     }
-
-
 }
